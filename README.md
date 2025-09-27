@@ -14,7 +14,23 @@ A production-grade FastAPI application for integrating with Salesforce to create
 
 ## Quick Start
 
-### 1. Setup Environment
+### Option 1: Docker Deployment (Recommended)
+
+```bash
+# Clone and setup
+git clone https://github.com/KrishnaPayyavula/salesforce-external-case-integration.git
+cd salesforce-external-case-integration
+cp env.example .env
+# Edit .env with your Salesforce credentials
+
+# Deploy with Docker
+chmod +x deploy.sh
+./deploy.sh --env development
+```
+
+**Access**: http://localhost:8000 | **Docs**: http://localhost:8000/docs
+
+### Option 2: Local Development
 
 ```bash
 # Create virtual environment
@@ -132,11 +148,40 @@ The mock service supports these product IDs:
 - pydantic for data validation
 - python-dotenv for environment management
 
+## Docker Deployment
+
+### Quick Commands
+```bash
+# Development
+docker-compose -f docker-compose.dev.yml up --build -d
+
+# Production
+docker-compose --profile production up --build -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+### Cloud Deployment
+- **Render.com**: Use Docker deployment option
+- **Railway.app**: Auto-detects Dockerfile
+- **DigitalOcean**: App Platform with Docker
+- **AWS ECS/Fargate**: Container deployment
+
+See [Docker Deployment Guide](DOCKER_DEPLOYMENT_GUIDE.md) for detailed instructions.
+
 ## Development
 
 ### Running in Development Mode
 ```bash
+# Local development
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# Docker development
+docker-compose -f docker-compose.dev.yml up --build -d
 ```
 
 ### Testing the API
