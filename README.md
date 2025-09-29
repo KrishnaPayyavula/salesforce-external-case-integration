@@ -1,207 +1,98 @@
-# Salesforce External Case Integration
+# Salesforce External Case Integration Demo
 
-A production-grade FastAPI application for integrating with Salesforce to create and manage cases, with a mock external service for product information.
+A FastAPI-based external service that authenticates with Salesforce, creates cases via the REST API, and exposes a mock endpoint consumed by a Salesforce Screen Flow to collect additional customer insights.
 
-## Features
+## Demo Recording
+- Salesforce integration task demo: https://www.youtube.com/watch?v=8bV2dkAMIfw
 
-- ✅ **OAuth 2.0 Authentication** with Salesforce using Client Credentials flow
-- ✅ **Case Management** - Create and retrieve cases in Salesforce
-- ✅ **Mock External Service** - Simulates external product information API
-- ✅ **Production-Ready Code** - Comprehensive error handling, logging, and validation
-- ✅ **Interactive Documentation** - Swagger UI and ReDoc integration
-- ✅ **Health Checks** - API and service health monitoring
-- ✅ **Environment Configuration** - Secure credential management
+## Task Summary
+- **Part 1 – External Service**: OAuth 2.0 Client Credentials flow against Salesforce, REST endpoint to create cases, health checks for operational visibility.
+- **Part 2 – Salesforce Screen Flow**: Flow launches from a Case record, calls the external mock API through a Named Credential + Apex action, allows the user to refine returned data, and saves it back as a Case Comment.
 
-## Quick Start
+## Solution Overview
+- External API hosted at `https://salesforce-external-case-integration.onrender.com`.
+- FastAPI orchestrates Salesforce authentication, request validation, and error handling.
+- Mock product info endpoint simulates downstream systems for the Screen Flow.
+- Salesforce assets: Connected App for OAuth, Named Credential for callouts, Apex action for flow integration, Screen Flow triggered from the case page.
 
-### Option 1: Docker Deployment (Recommended)
+## Architecture Diagram 
+
+- Architecture:  
+
+<img src="./images/technical_architecture.png"  alt="flow">
+
+
+## Screenshots
+- Screen Flow: 
+
+<img src="./images/screen_flow.png"  alt="flow">
+
+
+## Getting Started
+1. Clone the repository and create an `.env` from `env.example` with your Salesforce Connected App credentials.
+2. Start the API locally or via Docker (`./deploy.sh --env development`).
+3. Configure the Salesforce Connected App, Named Credential, Apex action, and Screen Flow as described in the task.
 
 ```bash
-# Clone and setup
-git clone https://github.com/KrishnaPayyavula/salesforce-external-case-integration.git
-cd salesforce-external-case-integration
-cp env.example .env
-# Edit .env with your Salesforce credentials
-
-# Deploy with Docker
-chmod +x deploy.sh
-./deploy.sh --env development
-```
-
-**Access**: http://localhost:8000 | **Docs**: http://localhost:8000/docs
-
-### Option 2: Local Development
-
-```bash
-# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
+source venv/bin/activate
 pip install -r requirements.txt
-```
-
-### 2. Configure Salesforce
-
-Copy the environment template and configure your Salesforce credentials:
-
-```bash
-cp env.example .env
-```
-
-Edit `.env` with your Salesforce Connected App details:
-```env
-SALESFORCE_CLIENT_ID=your_client_id_here
-SALESFORCE_CLIENT_SECRET=your_client_secret_here
-SALESFORCE_BASE_URL=https://your-instance.salesforce.com
-```
-
-### 3. Run the Application
-
-```bash
-python -m app.main
-```
-
-The API will be available at `http://localhost:8000`
-
-## API Documentation
-
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-- **Full Documentation**: [API_DOCUMENTATION.md](API_DOCUMENTATION.md)
-
-## Key Endpoints
-
-### Salesforce Integration
-- `POST /api/salesforce/cases` - Create a new case
-- `GET /api/salesforce/cases/{case_id}` - Get case details
-- `GET /api/salesforce/health` - Salesforce connectivity check
-
-### Mock External Service
-- `POST /api/mock/product-info` - Get product information
-- `GET /api/mock/products` - List available products
-- `GET /api/mock/health` - Mock API health check
-
-## Example Usage
-
-### Create a Case
-```bash
-curl -X POST "http://localhost:8000/api/salesforce/cases" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "Subject": "Product Support Request",
-    "Description": "Customer needs help with GC1060 setup",
-    "Type": "Technical",
-    "Priority": "High",
-    "Product__c": "GC1060"
-  }'
-```
-
-### Get Product Information
-```bash
-curl -X POST "http://localhost:8000/api/mock/product-info" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "case_id": "500WU00001LIROYYA5",
-    "Product__c": "GC1060"
-  }'
-```
-
-## Supported Products
-
-The mock service supports these product IDs:
-- `GC1040` - Advanced Control Panel
-- `GC1060` - Smart Gateway Controller
-- `GC3020` - Industrial Sensor Hub
-- `GC3040` - Process Control Module
-- `GC3060` - Data Logger
-- `GC5020` - Safety Relay Module
-- `GC5040` - Power Management Unit
-- `GC5060` - Communication Gateway
-- `GC1020` - Basic I/O Module
-
-## Project Structure
-
-```
-├── app/
-│   ├── __init__.py
-│   ├── main.py              # FastAPI application
-│   ├── config.py            # Configuration settings
-│   ├── models.py            # Pydantic models
-│   ├── api/
-│   │   ├── salesforce.py    # Salesforce endpoints
-│   │   └── mock.py          # Mock API endpoints
-│   └── services/
-│       ├── salesforce_service.py  # Salesforce API client
-│       └── mock_service.py        # Mock product service
-├── requirements.txt         # Python dependencies
-├── env.example             # Environment template
-├── API_DOCUMENTATION.md    # Comprehensive API docs
-└── README.md              # This file
-```
-
-## Requirements
-
-- Python 3.8+
-- FastAPI 0.104.1
-- httpx for HTTP client
-- pydantic for data validation
-- python-dotenv for environment management
-
-## Docker Deployment
-
-### Quick Commands
-```bash
-# Development
-docker-compose -f docker-compose.dev.yml up --build -d
-
-# Production
-docker-compose --profile production up --build -d
-
-# View logs
-docker-compose logs -f
-
-# Stop services
-docker-compose down
-```
-
-### Cloud Deployment
-- **Render.com**: Use Docker deployment option
-- **Railway.app**: Auto-detects Dockerfile
-- **DigitalOcean**: App Platform with Docker
-- **AWS ECS/Fargate**: Container deployment
-
-See [Docker Deployment Guide](DOCKER_DEPLOYMENT_GUIDE.md) for detailed instructions.
-
-## Development
-
-### Running in Development Mode
-```bash
-# Local development
+python start.py
+or 
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-
-# Docker development
-docker-compose -f docker-compose.dev.yml up --build -d
 ```
 
-### Testing the API
-Use the interactive documentation at http://localhost:8000/docs to test all endpoints.
+## Hosted Documentation
+- ReDoc: https://salesforce-external-case-integration.onrender.com/redoc
+- Swagger UI: https://salesforce-external-case-integration.onrender.com/docs
 
-## Production Deployment
+## API Reference
+**Salesforce Integration**
+- `POST /api/salesforce/cases`
+- `GET /api/salesforce/cases/{case_id}`
+- `GET /api/salesforce/health`
 
-1. Set `DEBUG=False` in your environment
-2. Configure proper CORS origins
-3. Use secure credential management
-4. Enable HTTPS
-5. Set up monitoring and logging
+**Mock Services**
+- `POST /api/mock/product-info`
 
-## License
+### cURL Examples
+```bash
+curl --location 'https://salesforce-external-case-integration.onrender.com/api/salesforce/cases' \
+--header 'Content-Type: application/json' \
+--data '{
+    "Type": "General",
+    "Status": "New",
+    "Reason": "Installation",
+    "Origin": "Web",
+    "Subject": "Product Damaged",
+    "Priority": "Medium",
+    "Description": "The customer reported that the received product was damaged during shipping. The packaging was torn and the product is not functioning properly. Requesting replacement or refund.",
+    "EngineeringReqNumber__c": "3232323",
+    "SLAViolation__c": "No",
+    "Product__c": "GC1060",
+    "PotentialLiability__c": "No"
+}'
+```
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+```bash
+curl --location 'https://salesforce-external-case-integration.onrender.com/api/mock/product-info' \
+--header 'Content-Type: application/json' \
+--data '{
+    "case_id": "500WU00001MMPqiYAH",
+    "Product__c": "GC44414060",
+    "Type": "General"
+}'
+```
 
-## Support
+## Salesforce Flow Walkthrough
+1. User opens a Case record in Salesforce and launches the Screen Flow.
+2. Flow sends the Case ID to the Render-hosted FastAPI mock endpoint via an Apex action using a Named Credential.
+3. Response surfaces product warranty details and other context in an editable flow screen.
+4. User refines the text and submits, storing the content as a Case Comment.
 
-For questions or issues:
-- Check the [API Documentation](API_DOCUMENTATION.md)
-- Use the health check endpoints to verify service status
-- Review application logs for detailed error information
+
+
+## Health & Monitoring
+- `GET /api/salesforce/health` – validates Salesforce authentication and connectivity.
+- FastAPI application logs (structured logging via `logging.config`).
+
